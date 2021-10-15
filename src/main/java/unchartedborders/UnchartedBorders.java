@@ -91,7 +91,7 @@ public class UnchartedBorders extends GameApplication {
             color = Color.DARKGREEN;
         }
 
-        column.add(new Tile(new Vec3(position.x, position.y, steppedHeight), new Rectangle(TILE_SIZE, TILE_SIZE, color), this));
+        column.add(new Tile(new Vec3(position.x, position.y, steppedHeight), new Rectangle(TILE_SIZE, TILE_SIZE, color), this, FXGL.getGameWorld()));
     }
 
     public double getTileSize(){ return TILE_SIZE; }

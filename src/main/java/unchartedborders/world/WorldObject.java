@@ -4,6 +4,7 @@ import com.almasb.fxgl.core.math.Vec2;
 import com.almasb.fxgl.core.math.Vec3;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.GameWorld;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
@@ -17,7 +18,7 @@ public class WorldObject {
     private Entity entity;
     private Node shape;
 
-    public WorldObject(Vec3 position, Node shape, UnchartedBorders main){
+    public WorldObject(Vec3 position, Node shape, UnchartedBorders main, GameWorld world){
         Bounds globalBounds = shape.localToScene(shape.getBoundsInLocal());
         this.main = main;
         this.position = position;
@@ -26,7 +27,8 @@ public class WorldObject {
         this.entity = FXGL.entityBuilder()
                 .at(position.x, position.y)
                 .view(shape)
-                .buildAndAttach();
+                .build();
+        world.addEntity(entity);
     }
 
     public Vec3 getPosition() { return position; }
