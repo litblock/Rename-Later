@@ -1,6 +1,7 @@
 package unchartedborders.world;
 
 import com.almasb.fxgl.core.math.Vec2;
+import com.almasb.fxgl.core.math.Vec3;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import javafx.geometry.Bounds;
@@ -9,13 +10,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class WorldObject {
-    private Vec2 position;
+    private Vec3 position;
 
     private Vec2 size;
     private Entity entity;
     private Node shape;
 
-    public WorldObject(Vec2 position, Node shape){
+    public WorldObject(Vec3 position, Node shape){
         Bounds globalBounds = shape.localToScene(shape.getBoundsInLocal());
         this.position = position;
         this.size = new Vec2(globalBounds.getWidth(), globalBounds.getHeight());
@@ -26,8 +27,8 @@ public class WorldObject {
                 .buildAndAttach();
     }
 
-    public Vec2 getPosition() { return position; }
-    public void setPosition(Vec2 position) { this.position = position; }
+    public Vec3 getPosition() { return position; }
+    public void setPosition(Vec3 position) { this.position = position; }
 
     public Vec2 getSize() {
         return size;
