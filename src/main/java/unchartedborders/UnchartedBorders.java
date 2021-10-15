@@ -3,7 +3,6 @@ package unchartedborders;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.core.math.Vec2;
-import com.almasb.fxgl.core.math.Vec3;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import de.articdive.jnoise.JNoise;
@@ -32,17 +31,17 @@ public class UnchartedBorders extends GameApplication {
 
     @Override
     protected void initGame() {
+        //Entity player = FXGL.entityBuilder().at(300, 300)
+        //        .view(new Rectangle(25, 25, Color.BLUE))
+         //       .buildAndAttach();
         List<List<Tile>> tiles = new ArrayList<>();
         NoiseGenerator noise = new NoiseGenerator(new Random().nextInt());
         noise.SetNoiseType(NoiseGenerator.NoiseType.Perlin);
-        noise.SetFractalWeightedStrength(5f);
         for(int x = 0; x < WIDTH; x+=25){
             List<Tile> column = new ArrayList<>();
             for(int y = 0; y < HEIGHT; y+=25){
-                float height = noise.GetNoise(x, y);
-                height = (float) (Math.round(height * 100.0) / 100.0);
-                System.out.println(height);
-                createTileWithHeightInfo(column, height, new Vec2(x, y));
+                float value = noise.GetNoise(x, y);
+                column.add(new Tile(new Vec2(x, y), new Rectangle(TILE_SIZE, TILE_SIZE, Color.gray(normalize(value, -1, 1)))));
             }
             tiles.add(column);
         }
@@ -57,33 +56,6 @@ public class UnchartedBorders extends GameApplication {
      * is between min and max. 0 means value = max, and 1 means value = min.
      */
     double normalize(double value, double min, double max) {
-        return ((value - min) / (max - min));
-    }
-
-    void createTileWithHeightInfo(List<Tile> column, float height, Vec2 position){
-        int steppedHeight;
-        Color color;
-        if(height <= -0.2){
-            steppedHeight = 0;
-            color = Color.BLUE;
-        }
-        else if(height <= 0){
-            steppedHeight = 1;
-            color = Color.LIGHTGOLDENRODYELLOW;
-        }
-        else if(height <= 0.4){
-            steppedHeight = 2;
-            color = Color.LIGHTGREEN;
-        }
-        else if(height <= 0.6){
-            steppedHeight = 3;
-            color = Color.GREEN;
-        }
-        else{
-            steppedHeight = 4;
-            color = Color.DARKGREEN;
-        }
-
-        column.add(new Tile(new Vec3(position.x, position.y, steppedHeight), new Rectangle(TILE_SIZE, TILE_SIZE, color)));
+        return 1 - ((value - min) / (max - min));
     }
 }
