@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import unchartedborders.world.NoiseGenerator;
 import unchartedborders.world.Tile;
+import unchartedborders.world.WorldObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,9 @@ import java.util.Random;
 public class UnchartedBorders extends GameApplication {
     private int WIDTH = 750;
     private int HEIGHT= 750;
-    private int TILE_SIZE = 25;
+    private double TILE_SIZE = 25;
+    List<List<Tile>> tiles = new ArrayList<>();
+    NoiseGenerator noise;
 
     @Override
     protected void initSettings(GameSettings settings) {
@@ -32,20 +35,9 @@ public class UnchartedBorders extends GameApplication {
 
     @Override
     protected void initGame() {
-        List<List<Tile>> tiles = new ArrayList<>();
-        NoiseGenerator noise = new NoiseGenerator(new Random().nextInt());
+        noise = new NoiseGenerator(new Random().nextInt());
         noise.SetNoiseType(NoiseGenerator.NoiseType.Perlin);
-        noise.SetFractalWeightedStrength(5f);
-        for(int x = 0; x < WIDTH; x+=25){
-            List<Tile> column = new ArrayList<>();
-            for(int y = 0; y < HEIGHT; y+=25){
-                float height = noise.GetNoise(x, y);
-                height = (float) (Math.round(height * 100.0) / 100.0);
-                System.out.println(height);
-                createTileWithHeightInfo(column, height, new Vec2(x, y));
-            }
-            tiles.add(column);
-        }
+        drawTerrain();
     }
 
     public static void main(String[] args) {
@@ -60,6 +52,21 @@ public class UnchartedBorders extends GameApplication {
         return ((value - min) / (max - min));
     }
 
+    void drawTerrain()
+    {
+        tiles.forEach(x -> x.forEach(WorldObject::destroy));
+        tiles.clear();
+        System.out.println(tiles);
+        for(int x = 0; x < WIDTH; x+=25){
+            List<Tile> column = new ArrayList<>();
+            for(int y = 0; y < HEIGHT; y+=25){
+                float height = noise.GetNoise(x, y);
+                height = (float) (Math.round(height * 100.0) / 100.0); // Round to hundredth's
+                createTileWithHeightInfo(column, height, new Vec2(x, y));
+            }
+            tiles.add(column);
+        }
+    }
     void createTileWithHeightInfo(List<Tile> column, float height, Vec2 position){
         int steppedHeight;
         Color color;
@@ -84,6 +91,12 @@ public class UnchartedBorders extends GameApplication {
             color = Color.DARKGREEN;
         }
 
-        column.add(new Tile(new Vec3(position.x, position.y, steppedHeight), new Rectangle(TILE_SIZE, TILE_SIZE, color)));
+        column.add(new Tile(new Vec3(position.x, position.y, steppedHeight), new Rectangle(TILE_SIZE, TILE_SIZE, color), this));
+    }
+
+    public double getTileSize(){ return TILE_SIZE; }
+    public void setTileSize(double value){
+        TILE_SIZE = value;
+        drawTerrain();
     }
 }

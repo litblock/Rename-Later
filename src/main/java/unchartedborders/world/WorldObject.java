@@ -8,16 +8,18 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import unchartedborders.UnchartedBorders;
 
 public class WorldObject {
     private Vec3 position;
-
+    private UnchartedBorders main;
     private Vec2 size;
     private Entity entity;
     private Node shape;
 
-    public WorldObject(Vec3 position, Node shape){
+    public WorldObject(Vec3 position, Node shape, UnchartedBorders main){
         Bounds globalBounds = shape.localToScene(shape.getBoundsInLocal());
+        this.main = main;
         this.position = position;
         this.size = new Vec2(globalBounds.getWidth(), globalBounds.getHeight());
         this.shape = shape;
@@ -53,4 +55,6 @@ public class WorldObject {
     public void setShape(Node shape) {
         this.shape = shape;
     }
+
+    public void destroy(){ entity.removeFromWorld(); }
 }
