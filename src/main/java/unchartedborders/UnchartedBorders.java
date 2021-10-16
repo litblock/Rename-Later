@@ -25,6 +25,9 @@ public class UnchartedBorders extends GameApplication {
     private double TILE_SIZE = 25;
     List<List<Tile>> tiles = new ArrayList<>();
     NoiseGenerator noise;
+    double zoomFactor = 1;
+    Vec2 zoomOffset = new Vec2(0, 0);
+    Vec2 prevZoomOffset = new Vec2(0, 0);
 
     @Override
     protected void initSettings(GameSettings settings) {
@@ -56,18 +59,20 @@ public class UnchartedBorders extends GameApplication {
     {
         tiles.forEach(x -> x.forEach(WorldObject::destroy));
         tiles.clear();
-        System.out.println(tiles);
-        for(int x = 0; x < WIDTH; x+=25){
+        for(int x = 0; x < WIDTH; x+=TILE_SIZE * zoomFactor){
             List<Tile> column = new ArrayList<>();
-            for(int y = 0; y < HEIGHT; y+=25){
-                float height = noise.GetNoise(x, y);
+            for(int y = 0; y < HEIGHT; y+=TILE_SIZE * zoomFactor){
+                //System.out.println(prevZoomOffset.x + ", " + zoomOffset.x);
+                Vec2 position = new Vec2(x, y);
+                //position = position.add(midpoint(prevZoomOffset, zoomOffset));
+                float height = noise.GetNoise((float) (position.x / zoomFactor), (float) (position.y / zoomFactor));
                 height = (float) (Math.round(height * 100.0) / 100.0); // Round to hundredth's
-                createTileWithHeightInfo(column, height, new Vec2(x, y));
+                createTileWithHeightInfo(column, height, position, zoomFactor);
             }
             tiles.add(column);
         }
     }
-    void createTileWithHeightInfo(List<Tile> column, float height, Vec2 position){
+    void createTileWithHeightInfo(List<Tile> column, float height, Vec2 position, double zoomFactor){
         int steppedHeight;
         Color color;
         if(height <= -0.2){
@@ -91,12 +96,30 @@ public class UnchartedBorders extends GameApplication {
             color = Color.DARKGREEN;
         }
 
-        column.add(new Tile(new Vec3(position.x, position.y, steppedHeight), new Rectangle(TILE_SIZE, TILE_SIZE, color), this, FXGL.getGameWorld()));
+        column.add(new Tile(new Vec3(position.x, position.y, steppedHeight), new Rectangle(TILE_SIZE * zoomFactor, TILE_SIZE * zoomFactor, color), this));
+    }
+
+    public void zoom(double zoomFactor, Vec2 mousePosition){
+        setZoomFactor(this.zoomFactor *= zoomFactor);
+        prevZoomOffset = zoomOffset;
+        zoomOffset = mousePosition;
+        drawTerrain();
+    }
+
+    public void setZoomFactor(double zoomFactor) {
+        if(zoomFactor < 0.5) zoomFactor = 0.5;
+        if(zoomFactor > 1.5) zoomFactor = 1.5;
+        this.zoomFactor = zoomFactor;
+    }
+
+    private Vec2 midpoint(Vec2 startPoint, Vec2 endPoint)
+    {
+        return new Vec2((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2) ;
     }
 
     public double getTileSize(){ return TILE_SIZE; }
     public void setTileSize(double value){
         TILE_SIZE = value;
-        drawTerrain();
+        //drawTerrain();
     }
 }

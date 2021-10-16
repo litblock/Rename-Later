@@ -7,6 +7,8 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.GameWorld;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import unchartedborders.UnchartedBorders;
@@ -17,8 +19,9 @@ public class WorldObject {
     private Vec2 size;
     private Entity entity;
     private Node shape;
+    private Vec2 mousePosition;
 
-    public WorldObject(Vec3 position, Node shape, UnchartedBorders main, GameWorld world){
+    public WorldObject(Vec3 position, Node shape, UnchartedBorders main){
         Bounds globalBounds = shape.localToScene(shape.getBoundsInLocal());
         this.main = main;
         this.position = position;
@@ -27,8 +30,18 @@ public class WorldObject {
         this.entity = FXGL.entityBuilder()
                 .at(position.x, position.y)
                 .view(shape)
-                .build();
-        world.addEntity(entity);
+                .buildAndAttach();
+        shape.getParent().setOnScroll((ScrollEvent event) -> {
+            double deltaY = event.getDeltaY();
+            double zoomFactor = 1.05;
+            if (deltaY < 0){
+                zoomFactor = 0.95;
+            }
+            main.zoom(zoomFactor, mousePosition);
+        });
+        shape.getParent().setOnMouseMoved((MouseEvent event) -> {
+            mousePosition = new Vec2(event.getX(), event.getY());
+        });
     }
 
     public Vec3 getPosition() { return position; }
